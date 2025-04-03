@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "🔍 Checking if SSH Key is correctly added..."
           ls -lah ~/.ssh/
-          cat ~/.ssh/oracle_vm_deploy_key | head -n 5  # Print first 5 lines for debugging
+          head -n 5 ~/.ssh/oracle_vm_deploy_key  # Print first 5 lines for debugging
           ssh-keygen -lf ~/.ssh/oracle_vm_deploy_key  # Verify key format
 
       - name: 🔐 Debug SSH Authentication to GitHub
@@ -41,7 +41,7 @@ jobs:
 
       - name: 🚀 Deploy to Oracle VM
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/oracle_vm_deploy_key opc@144.24.126.0 << EOF
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/oracle_vm_deploy_key opc@144.24.126.0 << 'EOF'
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/oracle_vm_deploy_key -o IdentitiesOnly=yes"
 
             # Debugging: Test GitHub SSH connection from Oracle VM
@@ -53,4 +53,4 @@ jobs:
 
             # Restart application (modify this based on your setup)
             sudo systemctl restart myapp
-EOF
+          EOF
