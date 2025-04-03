@@ -23,10 +23,20 @@ jobs:
       - name: Deploy using SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa opc@144.24.126.0 << 'EOF'
-            eval $(ssh-agent -s)
-            ssh-add ~/.ssh/id_rsa  # Load the correct SSH key
+            # Ensure SSH Agent is running and use the correct key
+            eval \$(ssh-agent -s)
+            ssh-add ~/.ssh/id_rsa
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes"
+
+            # Debugging: Print which SSH key is being used
+            ssh -T git@github.com || echo "❌ SSH authentication failed"
+
             cd /home/opc/firstApp
+
+            # Ensure Git uses SSH
+            git remote set-url origin git@github.com:senpaii1/oracleVm.git
             git pull origin main
+
             npm install --omit=dev
             pm2 restart index.js
           EOF
