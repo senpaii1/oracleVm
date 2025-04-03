@@ -19,6 +19,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
 
+      - name: Check SSH Key
+        run: cat ~/.ssh/id_rsa
+
       - name: Debug SSH Key
         run: ls -l ~/.ssh && cat ~/.ssh/id_rsa
 
