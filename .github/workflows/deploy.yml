@@ -8,23 +8,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan 144.24.126.0 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
 
-      - name: Deploy to Oracle VM
+      - name: Deploy using SSH
         run: |
           ssh -i ~/.ssh/id_rsa opc@144.24.126.0 << 'EOF'
-            cd /home/opc/firstApp  # Replace with your actual project path
+            cd /home/opc/firstApp
             git pull origin main
-            npm install --omit=dev  # Install only production dependencies
-            pm2 restart all         # Restart the Node.js app
+            npm install --omit=dev
+            pm2 restart all
           EOF
