@@ -19,6 +19,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
 
+      - name: Debug SSH Key
+        run: ls -l ~/.ssh && cat ~/.ssh/id_rsa
+
       - name: Deploy using SSH
         run: |
           ssh -i ~/.ssh/id_rsa opc@144.24.126.0 << 'EOF'
