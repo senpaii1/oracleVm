@@ -12,27 +12,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Validate SSH Key
-        run: |
-          ls -l ~/.ssh/oracle_vm_deploy_key
-          cat ~/.ssh/oracle_vm_deploy_key | head -n 5  # Print first 5 lines for debugging
-          ssh-keygen -lf ~/.ssh/oracle_vm_deploy_key  # Verify key format
-
-
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_SSH_KEY_BASE64 }}" | base64 --decode > ~/.ssh/oracle_vm_deploy_key
+          echo "${{ secrets.PRIVATE_SSH_KEY_BASE64 }}" | base64 --decode | tr -d '\r' > ~/.ssh/oracle_vm_deploy_key
           chmod 600 ~/.ssh/oracle_vm_deploy_key
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
           ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
 
-          # Start SSH Agent and add the new deploy key
+          # Start SSH Agent and add key
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/oracle_vm_deploy_key
 
+      - name: Validate SSH Key
+        run: |
+          echo "🔍 Validating SSH Key..."
+          ls -l ~/.ssh/oracle_vm_deploy_key
+          head -n 5 ~/.ssh/oracle_vm_deploy_key  # Print first 5 lines for debugging
+          ssh-keygen -lf ~/.ssh/oracle_vm_deploy_key  # Verify key format
+
       - name: Debug SSH Authentication
-        run: ssh -i ~/.ssh/oracle_vm_deploy_key -o IdentitiesOnly=yes -vT git@github.com || echo "❌ SSH authentication failed"
+        run: ssh -i ~/.ssh/oracle_vm_deploy_key -o IdentitiesOnly=yes -vT git@github.com
 
       - name: Deploy using SSH
         run: |
@@ -46,8 +46,3 @@ jobs:
 
             # Ensure Git uses SSH
             git remote set-url origin git@github.com:senpaii1/oracleVm.git
-            git pull origin main
-
-            npm install --omit=dev
-            pm2 restart index.js
-          EOF
