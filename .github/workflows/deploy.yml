@@ -15,22 +15,22 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_SSH_KEY_BASE64 }}" | base64 --decode > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.PRIVATE_DEPLOY_KEY }}" > ~/.ssh/oracle_vm_deploy_key
+          chmod 600 ~/.ssh/oracle_vm_deploy_key
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
           ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
-          
-          # Start SSH Agent and add key
+
+          # Start SSH Agent and add the new deploy key
           eval $(ssh-agent -s)
-          ssh-add ~/.ssh/id_rsa
+          ssh-add ~/.ssh/oracle_vm_deploy_key
 
       - name: Debug SSH Authentication
-        run: ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes -vT git@github.com
+        run: ssh -i ~/.ssh/oracle_vm_deploy_key -o IdentitiesOnly=yes -vT git@github.com || echo "❌ SSH authentication failed"
 
       - name: Deploy using SSH
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa opc@144.24.126.0 << EOF
-            export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/oracle_vm_deploy_key opc@144.24.126.0 << EOF
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/oracle_vm_deploy_key -o IdentitiesOnly=yes"
 
             # Debugging: Test GitHub SSH connection
             ssh -T git@github.com || echo "❌ SSH authentication failed"
