@@ -24,6 +24,9 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
 
+      - name: Debug SSH Authentication
+        run: ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes -vT git@github.com
+
       - name: Deploy using SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa opc@144.24.126.0 << EOF
