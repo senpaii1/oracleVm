@@ -15,9 +15,10 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.PRIVATE_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
+
 
       - name: Check SSH Key
         run: cat ~/.ssh/id_rsa
