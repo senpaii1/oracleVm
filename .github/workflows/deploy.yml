@@ -23,7 +23,8 @@ jobs:
       - name: Deploy using SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa opc@144.24.126.0 << 'EOF'
-            export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes"
+            eval $(ssh-agent -s)
+            ssh-add ~/.ssh/id_rsa  # Load the correct SSH key
             cd /home/opc/firstApp
             git pull origin main
             npm install --omit=dev
