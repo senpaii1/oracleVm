@@ -12,10 +12,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate SSH Key
+        run: |
+          ls -l ~/.ssh/oracle_vm_deploy_key
+          cat ~/.ssh/oracle_vm_deploy_key | head -n 5  # Print first 5 lines for debugging
+          ssh-keygen -lf ~/.ssh/oracle_vm_deploy_key  # Verify key format
+
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_DEPLOY_KEY }}" > ~/.ssh/oracle_vm_deploy_key
+          echo "${{ secrets.PRIVATE_SSH_KEY_BASE64 }}" | base64 --decode > ~/.ssh/oracle_vm_deploy_key
           chmod 600 ~/.ssh/oracle_vm_deploy_key
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
           ssh-keyscan -H 144.24.126.0 >> ~/.ssh/known_hosts
